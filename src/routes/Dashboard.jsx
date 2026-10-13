@@ -1,5 +1,4 @@
 import supabase from "../supabase-client.js";
-import {useAuth} from "../context/AuthContext.jsx";
 import {useEffect, useState} from "react";
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from "recharts";
 import Form from "../components/Form.jsx";
@@ -36,8 +35,6 @@ function Dashboard() {
         }
     }
 
-    const {session} = useAuth();
-    console.log(session)
     return (
         <div className="dashboard-wrapper">
             <div className="chart-container">

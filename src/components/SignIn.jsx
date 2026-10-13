@@ -1,6 +1,6 @@
 import {useActionState} from "react";
 import {useAuth} from "../context/AuthContext.jsx";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 
 const Signin = () => {
     const {signInUser} = useAuth();
@@ -40,9 +40,9 @@ const Signin = () => {
                     <h2 className="form-title">Sign in</h2>
                     <p>
                         Don't have an account yet?{' '}
-                        {/*<Link className="form-link">*/}
-                        Sign up
-                        {/*</Link>*/}
+                        <Link to="/signup" className="form-link">
+                            Sign up
+                        </Link>
                     </p>
 
                     <label htmlFor="email">Email</label>
