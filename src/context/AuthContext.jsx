@@ -5,6 +5,7 @@ const AuthContext = createContext();
 
 export const AuthContextProvider = ({children}) => {
     const [session, setSession] = useState(undefined);
+    const [users, setUsers] = useState([]);
 
     useEffect(() => {
         async function getInitialSession() {
@@ -23,10 +24,26 @@ export const AuthContextProvider = ({children}) => {
 
         supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
-            console.log('Session changed:', session);
         })
 
     }, []);
+
+    useEffect(() => {
+
+        if (!session) return;
+
+        async function fetchUsers() {
+            try {
+                const {data, error} = await supabase.from('user_profiles').select('id, name, account_type');
+                if (error) throw error;
+                setUsers(data)
+            } catch (error) {
+                console.error('Error fetching users:', error.message);
+            }
+        }
+
+        fetchUsers()
+    }, [session])
 
     const signInUser = async (email, password) => {
         try {
@@ -44,7 +61,6 @@ export const AuthContextProvider = ({children}) => {
         }
     }
 
-
     const signOut = async () => {
         try {
             const {error} = await supabase.auth.signOut();
@@ -59,12 +75,19 @@ export const AuthContextProvider = ({children}) => {
         }
     }
 
-    const signUp = async (email, password) => {
+    const signUp = async (email, password, name, accountType) => {
         try {
             const {data, error} = await supabase.auth.signUp({
                 email: email.toLowerCase(),
                 password: password,
+                options: {
+                    data: {
+                        name: name,
+                        account_type: accountType
+                    }
+                }
             })
+
             if (error) {
                 return {success: false, error: error.message};
             }
@@ -76,7 +99,7 @@ export const AuthContextProvider = ({children}) => {
     }
 
     return (
-        <AuthContext value={{session, signInUser, signOut, signUp}}>
+        <AuthContext value={{session, signInUser, signOut, signUp, users}}>
             {children}
         </AuthContext>
     );

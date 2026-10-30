@@ -6,14 +6,16 @@ const Signup = () => {
     const {signUp} = useAuth();
     const navigate = useNavigate();
     const [error, handleSubmit, isPending] = useActionState(async (previousState, formData) => {
+        const name = formData.get('name');
         const email = formData.get('email');
         const password = formData.get('password');
+        const accountType = formData.get('account-type');
 
         if (!email || !password) {
             return new Error('Email and password are required.');
         }
 
-        const {success, data, error} = await signUp(email, password);
+        const {success, data, error} = await signUp(email, password, name, accountType);
         if (!success) {
             return new Error(error);
         }
@@ -47,6 +49,20 @@ const Signup = () => {
                         </Link>
                     </p>
 
+                    <label htmlFor="name">Name</label>
+                    <input
+                        className="form-input"
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder=""
+                        required
+                        aria-required="true"
+                        aria-invalid={error ? 'true' : 'false'}
+                        aria-describedby={error ? 'signup-error' : undefined}
+                        disabled={isPending}
+                    />
+
                     <label htmlFor="email">Email</label>
                     <input
                         className="form-input"
@@ -57,7 +73,7 @@ const Signup = () => {
                         required
                         aria-required="true"
                         aria-invalid={!!error}
-                        aria-describedby={error ? 'email-error' : undefined}
+                        aria-describedby={error ? 'signup-error' : undefined}
                         disabled={isPending}
                     />
 
@@ -71,9 +87,33 @@ const Signup = () => {
                         required
                         aria-required="true"
                         aria-invalid={!!error}
-                        aria-describedby={error ? 'password-error' : undefined}
+                        aria-describedby={error ? 'signup-error' : undefined}
                         disabled={isPending}
                     />
+
+                    <fieldset
+                        className="form-fieldset"
+                        aria-required="true"
+                        aria-label="Select your role"
+                    >
+                        <legend>Select your role</legend>
+                        <div className="radio-group">
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="account-type"
+                                    value="admin"
+                                    required
+                                />{' '}
+                                Admin
+                            </label>
+                            <label>
+                                <input type="radio" name="account-type" value="rep" required />{' '}
+                                Sales Rep
+                            </label>
+                        </div>
+                    </fieldset>
+
 
                     <button
                         type="submit"

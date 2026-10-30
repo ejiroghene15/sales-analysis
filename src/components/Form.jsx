@@ -1,21 +1,20 @@
 import {useActionState} from 'react';
 import supabase from "../supabase-client.js";
+import {useAuth} from "../context/AuthContext.jsx";
 
-function Form({metrics}) {
+function Form() {
+    const {users, session: {user: authUser}} = useAuth();
     const [error, submitAction, isPending] = useActionState(
         async (previousState, formData) => {
             //Action logic
             const newDeal = {
-                name: formData.get('name'),
+                user_id: formData.get('user_id'),
                 value: formData.get('value'),
             };
 
             const {error} = await supabase.from('sales_deals').insert(newDeal);
 
             if (error) throw new Error('Error adding new deal:' + error);
-            //Async operation
-
-            //Return error state
 
             return null;
         },
@@ -23,9 +22,18 @@ function Form({metrics}) {
     );
 
     const generateOptions = () => {
-        return metrics.map((metric) => (
-            <option key={metric.name} value={metric.name}>
-                {metric.name}
+        if (authUser.user_metadata.account_type === 'rep') {
+            return (
+                <option key={authUser.id} value={authUser.id}>
+                    {authUser.user_metadata.name}
+                </option>
+            )
+        }
+
+        // Admin can
+        return users.filter((user) => user.account_type === 'rep').map((user) => (
+            <option key={user.id} value={user.name}>
+                {user.name}
             </option>
         ));
     };
@@ -46,8 +54,8 @@ function Form({metrics}) {
                     Name:
                     <select
                         id="deal-name"
-                        name="name"
-                        defaultValue={metrics?.[0]?.name || ''}
+                        name="user_id"
+                        defaultValue={users?.[0]?.name || ''}
                         aria-required="true"
                         aria-invalid={error ? 'true' : 'false'}
                         disabled={isPending}

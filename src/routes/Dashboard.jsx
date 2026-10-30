@@ -26,10 +26,13 @@ function Dashboard() {
     async function fetchMetrics() {
         const {data, error} = await supabase
             .from('sales_deals')
-            .select('name, value.sum()')
+            .select(
+                `value.sum(),
+                ...user_profiles!inner(name)`,
+            )
 
         if (error) {
-            throw new Error('Error fetching metrics:', error);
+            throw new Error('Error fetching metrics:' + error);
         } else {
             setMetrics(data);
         }
@@ -55,7 +58,7 @@ function Dashboard() {
                     <p>Loading metrics...</p>
                 )}
             </div>
-            <Form metrics={metrics}/>
+            <Form/>
         </div>
     );
 }

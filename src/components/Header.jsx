@@ -3,9 +3,11 @@ import {useState} from "react";
 import {useNavigate} from "react-router-dom";
 
 function Header() {
-    const {signOut, session} = useAuth();
+    const {signOut, session, users} = useAuth();
     const [error, setError] = useState(null)
     const navigate = useNavigate();
+
+    const currentUser = users.find((user) => user.id === session?.user?.id);
 
     const handleSignOut = async (e) => {
         e.preventDefault();
@@ -15,6 +17,16 @@ function Header() {
         }
         navigate('/signin');
     }
+
+    const accountTypeMap = {
+        rep: 'Sales Rep',
+        admin: 'Admin',
+    };
+
+    const displayAccountType = currentUser?.account_type
+        ? accountTypeMap[currentUser.account_type]
+        : '';
+
     return (
         <>
             <header>
@@ -26,7 +38,7 @@ function Header() {
 
                     <h2>
                         <span className="sr-only">Logged in as:</span>
-                        {session?.user?.email}
+                        {currentUser?.name} ({displayAccountType})
                     </h2>
 
                     {error && (
